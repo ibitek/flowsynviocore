@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sign in | Synvio AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/app.css?v=17.1">
+<script src="./js/appearance.js?v=17.1"></script>
+<link rel="stylesheet" href="./assets/appearance.css?v=17.1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=8.2"></head>
+<body data-auth-page="login">
+  <main class="auth-page">
+    <section class="auth-visual">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <div class="brand-name">SYNVIO AI</div>
+          <div class="brand-sub mono">Support workstation</div>
+        </div>
+      </div>
+
+      <div>
+        <h1>Support work,<br>without the noise.</h1>
+        <p>One workspace for customer email, AI chat handoffs and human-controlled support replies.</p>
+      </div>
+
+      <div class="brand-sub mono">APP.SYNVIOCORE.XYZ</div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <div id="dev-notice" class="dev-notice hidden">
+          Developer setup required: connect this build to Supabase in <span class="mono">js/config.js</span>.
+        </div>
+
+        <h2>Sign in</h2>
+<div class="auth-footer">Sign in with your existing Synvio administrator account.</div>
+        <p>Use your full work email address and password. You do not need an invitation email for each sign-in.</p>
+
+        <form id="login-form">
+          <div class="auth-field">
+            <label for="email">Work email</label>
+            <input id="email" name="email" class="auth-input" type="email" autocomplete="username" placeholder="you@company.com" required>
+          </div>
+
+          <div class="auth-field">
+            <label for="password">Password</label>
+            <input id="password" name="password" class="auth-input" type="password" autocomplete="current-password" required>
+          </div>
+
+          <button id="auth-submit" class="auth-submit" type="submit">Sign in</button>
+          <div id="auth-message" class="auth-message"></div>
+        </form>
+
+        <div class="auth-footer"><a href="./forgot-password.html">Set or reset password</a></div>
+        <div class="auth-footer">
+          Need a workspace? <a href="./register.html">Create account</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase-client.js"></script>
+  <script src="./js/auth.js?v=17.1"></script>
+</body>
+</html>
+

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Create workspace | Synvio AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/app.css?v=17.1">
+<script src="./js/appearance.js?v=17.1"></script>
+<link rel="stylesheet" href="./assets/appearance.css?v=17.1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=8.2"></head>
+<body data-auth-page="register">
+  <main class="auth-page">
+    <section class="auth-visual">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <div class="brand-name">SYNVIO AI</div>
+          <div class="brand-sub mono">Organization onboarding</div>
+        </div>
+      </div>
+
+      <div>
+        <h1>Your support<br>workspace.</h1>
+        <p>Create the first administrator account for an organization. Create the company administrator account. Employees join this workspace through invitations from the admin.</p>
+      </div>
+
+      <div class="brand-sub mono">COMPANY ADMINISTRATOR ONBOARDING</div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <div id="dev-notice" class="dev-notice hidden">
+          Developer setup required: connect this build to Supabase in <span class="mono">js/config.js</span>.
+        </div>
+
+        <h2>Create workspace</h2>
+        <p>This account becomes the first organization administrator.</p>
+
+        <form id="register-form">
+          <div class="auth-field">
+            <label for="company">Company name</label>
+            <input id="company" name="company" class="auth-input" type="text" autocomplete="organization" required>
+          </div>
+
+          <div class="auth-field">
+            <label for="name">Your name</label>
+            <input id="name" name="name" class="auth-input" type="text" autocomplete="name" required>
+          </div>
+
+          <div class="auth-field">
+            <label for="email">Work email</label>
+            <input id="email" name="email" class="auth-input" type="email" autocomplete="email" required>
+          </div>
+
+          <div class="auth-field">
+            <label for="password">Password</label>
+            <input id="password" name="password" class="auth-input" type="password" autocomplete="new-password" minlength="8" required>
+          </div>
+
+          <button id="auth-submit" class="auth-submit" type="submit">Create account</button>
+          <div id="auth-message" class="auth-message"></div>
+        </form>
+
+        <div class="auth-footer">
+          Already have an account? <a href="./login.html">Sign in</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase-client.js"></script>
+  <script src="./js/auth.js?v=17.1"></script>
+</body>
+</html>
+
