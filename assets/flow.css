@@ -12,3 +12,7 @@
 .brand-dot{transition:transform .65s cubic-bezier(.2,.7,.25,1),border-color .3s,box-shadow .3s}
 @media(hover:hover) and (pointer:fine){.brand:hover .brand-dot{transform:rotate(90deg) scale(1.08);border-color:#20d9ef;box-shadow:0 0 15px #20d9ef33}}
 @media(prefers-reduced-motion:reduce){.brand:hover,.brand:hover .brand-dot{transform:none}}
+
+.agent-home{max-width:1000px;margin:60px auto;padding:24px}.agent-home h3{flex:1}.builder-assistant{position:fixed;right:18px;top:90px;bottom:18px;width:370px;max-width:calc(100vw - 36px);overflow:auto;padding:22px;background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 50px #0003;z-index:40}.builder-assistant h2{font-size:20px}.builder-assistant #help-log{max-height:40vh} .content>section{animation:none}
+
+.builder-assistant{z-index:2147483647}
