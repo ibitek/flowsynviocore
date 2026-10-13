@@ -16,3 +16,5 @@
 .agent-home{max-width:1000px;margin:60px auto;padding:24px}.agent-home h3{flex:1}.builder-assistant{position:fixed;right:18px;top:90px;bottom:18px;width:370px;max-width:calc(100vw - 36px);overflow:auto;padding:22px;background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 50px #0003;z-index:40}.builder-assistant h2{font-size:20px}.builder-assistant #help-log{max-height:40vh} .content>section{animation:none}
 
 .builder-assistant{z-index:2147483647}
+
+#help{white-space:nowrap;border-color:var(--blue);color:var(--blue)}#help[aria-expanded=true]{background:var(--blue);color:#fff}.builder-user{border-left:3px solid var(--blue)}.builder-assistant #help-log p{overflow-wrap:anywhere}
