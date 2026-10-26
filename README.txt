@@ -1,23 +1,14 @@
-FLOW UPDATE — INSTAGRAM CONNECTIONS + MARKETING EMBED
+CENTRAL APP UPDATE — INSTAGRAM DISCONNECT
 
-Replace these matching files in the FLOW repository:
+Replace this matching file in the app.synviocore.xyz repository:
 
-  js/flow-widget.js
-  js/flow-studio.js
-  assets/flow.css
+  lib/instagram-oauth.js
 
-Then deploy FLOW.
+Then deploy the app project.
 
-What is included
-----------------
-1. Instagram agents now show a Disconnect Instagram button only while an active
-   Instagram connection exists. It asks for confirmation and safely removes
-   the encrypted connection token from the central integration.
-2. Widget design is hidden for Instagram agents. Website-chat agents keep the
-   full Widget design area unchanged.
-3. The public widget supports data-no-launcher="true". This is used only by
-   the marketing page so its own Talk to AI buttons open the chat without a
-   flashing floating launcher. Normal customer embeds remain unchanged.
+No SQL migration and no environment-variable changes are required.
 
-After FLOW is deployed, upload the matching marketing v16 package and deploy
-the marketing website.
+This adds the required cross-origin response headers to the Instagram
+disconnect endpoint used by FLOW. The existing secure disconnect action is
+unchanged: it clears the encrypted access token and marks the connection as
+disconnected.
