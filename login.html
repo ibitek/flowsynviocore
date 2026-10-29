@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pl" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sign in | SYNVIO/CORE AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/app.css?v=17.1">
+<script src="./js/appearance.js?v=17.1"></script>
+<link rel="stylesheet" href="./assets/appearance.css?v=17.1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=8.2"><link rel="stylesheet" href="../workspace/assets/workspace-theme.css?v=17.1"><link rel="stylesheet" href="../workspace/assets/workspace-light.css?v=17.1"></head>
+<body data-auth-page="login">
+  <main class="auth-page">
+    <section class="auth-visual">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <div class="brand-name">SYNVIO<span class="brand-accent">/FLOW</span></div>
+          <div class="brand-sub mono">Support workstation</div>
+        </div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to light theme" title="Switch to light theme" aria-pressed="false"><svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg><svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" hidden><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg></button>
+      </div>
+
+      <div>
+        <h1>Support work,<br>without the noise.</h1>
+        <p>One workspace for customer email, AI chat handoffs and human-controlled support replies.</p>
+      </div>
+
+      <div class="brand-sub mono">APP.SYNVIOCORE.XYZ</div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <div id="dev-notice" class="dev-notice hidden">
+          Developer setup required: connect this build to Supabase in <span class="mono">js/config.js</span>.
+        </div>
+
+        <h2>Sign in</h2>
+<div class="auth-footer">Sign in with your existing Synvio administrator account.</div>
+        <p>Use your full work email address and password. You do not need an invitation email for each sign-in.</p>
+
+        <form id="login-form">
+          <div class="auth-field">
+            <label for="email">Work email</label>
+            <input id="email" name="email" class="auth-input" type="email" autocomplete="username" placeholder="you@company.com" required>
+          </div>
+
+          <div class="auth-field">
+            <label for="password">Password</label>
+            <input id="password" name="password" class="auth-input" type="password" autocomplete="current-password" required>
+          </div>
+
+          <button id="auth-submit" class="auth-submit" type="submit">Sign in</button>
+          <div id="auth-message" class="auth-message"></div>
+        </form>
+
+        <div class="auth-footer"><a href="https://app.synviocore.xyz/forgot-password.html">Set or reset password</a></div>
+        <div class="auth-footer">
+          Need a workspace? <a href="./register.html">Create account</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/supabase-client.js"></script>
+  <script src="./js/auth.js?v=17.1"></script>
+<div class="auth-footer"><a href="https://app.synviocore.xyz/login.html">Sign in to Workspace ↗</a></div>
+  <script>
+    (function(){
+      var html = document.documentElement;
+      var toggle = document.getElementById('theme-toggle');
+      var sun = toggle && toggle.querySelector('.theme-icon-sun');
+      var moon = toggle && toggle.querySelector('.theme-icon-moon');
+      var saved = localStorage.getItem('synvio-theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var current = saved || (prefersDark ? 'dark' : 'light');
+      function setTheme(theme){
+        html.setAttribute('data-theme', theme);
+        localStorage.setItem('synvio-theme', theme);
+        if(sun && moon){
+          if(theme === 'light'){ sun.hidden = true; moon.hidden = false; toggle.setAttribute('aria-label','Switch to dark theme'); toggle.setAttribute('title','Switch to dark theme'); toggle.setAttribute('aria-pressed','true'); }
+          else { sun.hidden = false; moon.hidden = true; toggle.setAttribute('aria-label','Switch to light theme'); toggle.setAttribute('title','Switch to light theme'); toggle.setAttribute('aria-pressed','false'); }
+        }
+      }
+      setTheme(current);
+      if(toggle){
+        toggle.addEventListener('click', function(){
+          var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          setTheme(next);
+        });
+      }
+    })();
+  </script></body>
+</html>
+

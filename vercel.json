@@ -1,0 +1,25 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/wallet",
+      "destination": "/api/flow"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/flow",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/flow.html",
+      "destination": "/",
+      "permanent": false
+    }
+  ],
+  "functions": {
+    "api/flow.js": {
+      "maxDuration": 300
+    }
+  }
+}
