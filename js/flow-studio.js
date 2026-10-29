@@ -16,7 +16,7 @@
   const origin=$('[data-config="origins"]'),embed=$('#embed'),copy=$('#copy-embed');
   origin.closest('label').hidden=instagram;embed.closest('label').hidden=instagram;copy.hidden=instagram;
   const embedHint=copy.nextElementSibling;if(embedHint?.tagName==='P')embedHint.hidden=instagram;
-  channelNotice('channel-publish-note',publishIntro,instagram?'Publish the assistant settings here. Instagram account connection will open in SYNVIO/APP once the secure Meta connection step is enabled.':'Publish the saved draft after adding the website origin. The embed code below is unique to this assistant.');
+  channelNotice('channel-publish-note',publishIntro,instagram?'Publish the assistant settings here. Connect or disconnect the Instagram account from Connections. No website domain is required.':'Publish the saved draft after adding the website origin. The embed code below is unique to this assistant.');
   $('#publish').textContent=instagram?'Publish Instagram settings':'Publish saved draft';
   setButtonIcon('test','play',instagram?'Test conversation':'Test bot');
  }
@@ -46,7 +46,7 @@
  const action=(name,extra={})=>call({action:name,botId:bot?.id,revision:bot?.revision,...extra});
  async function guarded(fn){notice('');try{await fn();}catch(e){notice(e.message);}}
  function dirtyState(){knowledgeCount();dirty=true;$('#save-state').textContent='Unsaved changes';}
- function fill(){c=structuredClone(bot.draft);c.teamOnline??=true;knowledgeCount();renderNodes();$('#handoff-toggle').disabled=!bot.connected;$('#handoff-toggle').checked=c.mode!=='ai';dirty=false;$('#secret-box').hidden=true;$('#secret').value='';$('#save-state').textContent='Draft saved';all('[data-config]').forEach(x=>{if(x.type==='checkbox')x.checked=!!c[x.dataset.config];else x.value=c[x.dataset.config]??'';});$('#cards').value=(c.cards||[]).map(x=>x.title+' | '+x.text).join('\n');
+ function fill(){c=structuredClone(bot.draft);c.notices??={};all('[data-notice]').forEach(x=>x.value=c.notices[x.dataset.notice]||'');$('#conversation-lifecycle').hidden=c.channel!=='instagram';c.teamOnline??=true;knowledgeCount();renderNodes();$('#handoff-toggle').disabled=!bot.connected;$('#handoff-toggle').checked=c.mode!=='ai';dirty=false;$('#secret-box').hidden=true;$('#secret').value='';$('#save-state').textContent='Draft saved';all('[data-config]').forEach(x=>{if(x.type==='checkbox')x.checked=!!c[x.dataset.config];else x.value=c[x.dataset.config]??'';});$('#cards').value=(c.cards||[]).map(x=>x.title+' | '+x.text).join('\n');
   $('#connection-state').textContent=bot.connected?'Connected to your company':'Not connected';$('#connect').textContent=bot.connected?'Disconnect':'Connect Workspace';
   all('[data-config="mode"] option').forEach(x=>x.disabled=x.value!=='ai'&&!bot.connected);$('#live-state').textContent=bot.published?'Live · published version':'Offline';
   const target=c.format==='inline'?' data-target="#synvio-chat"':'';
@@ -89,6 +89,7 @@
  $('#create-form').onsubmit=e=>{e.preventDefault();guarded(async()=>{const button=$('#create-form button[type="submit"]');button.disabled=true;try{if(dirty)await save();const channel=$('input[name="agent-channel"]:checked')?.value||'web';const r=await call({action:'create',name:$('#agent-name').value.trim(),channel});$('#create-dialog').close();$('#create-form').reset();$('#create-channel-web').checked=true;all('.channel-choice').forEach(choice=>choice.classList.toggle('selected',choice.querySelector('#create-channel-web')!==null));await load(r.bot.id);}finally{button.disabled=false;}});};
 
  async function save(){const r=await action('save',{config:c});bot=r.bot;fill();}
+  all('[data-notice]').forEach(x=>x.addEventListener('input',()=>{c.notices??={};c.notices[x.dataset.notice]=x.value;dirtyState();}));
   ['input','change'].forEach(evt=>all('[data-config]').forEach(x=>x.addEventListener(evt,()=>{(layoutKeys.includes(x.dataset.config)?layout():c)[x.dataset.config]=x.type==='checkbox'?x.checked:['range','number'].includes(x.type)?Number(x.value):x.value;if(x.dataset.config==='mode')$('#handoff-toggle').checked=c.mode!=='ai';dirtyState();widget?.update(c);outputs();})));
 
  $('#logo-file').onchange=()=>guarded(async()=>{const file=$('#logo-file').files[0];if(!file)return;if(!['image/png','image/jpeg','image/webp','image/svg+xml'].includes(file.type)||file.size>2097152)throw Error('Choose a PNG, JPEG, WebP or SVG image up to 2 MB.');const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});c.logo=data;$('[data-config=logo]').value=data;dirtyState();widget?.update(c);});
