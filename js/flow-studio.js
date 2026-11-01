@@ -141,3 +141,10 @@ if (!document.querySelector('script[data-commerce-client]')) {
   commerceScript.defer = true;
   document.head.append(commerceScript);
 }
+if (!document.querySelector('script[data-flow-rework]')) {
+  const reworkScript = document.createElement('script');
+  reworkScript.src = '/js/flow-rework-v1.js?v=2';
+  reworkScript.dataset.flowRework = 'true';
+  reworkScript.defer = true;
+  document.head.append(reworkScript);
+}
