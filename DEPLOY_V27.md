@@ -1,0 +1,15 @@
+# SYNVIO/CORE V27 — wdrożenie
+
+1. W Supabase → SQL Editor → New query wklej cały plik flow_v27.sql z tej paczki i kliknij Run. Uruchom raz we wspólnej bazie Workspace i Flow. Wymaga wcześniejszych migracji V25. Powtórne uruchomienie jest bezpieczne. Nie uruchamiaj ponownie starego billing_v25.sql po V27, bo przywróci stare zasady bonusu.
+2. Wgraj zawartość paczek Flow, Workspace i Marketing do odpowiadających im repozytoriów i wdróż wszystkie trzy projekty. Nie dodawaj nadrzędnego folderu ZIP do repo. Nie trzeba zmieniać zmiennych środowiskowych ani klucza szyfrowania.
+3. Odśwież strony Ctrl+F5. Zastąp starą wiedzę bota sześcioma plikami TXT z Knowledge EN V27 (nie dokładaj nowych reguł do sprzecznych starych). Teksty do czterech pól instrukcji są w BOT_FIELDS_EN.txt.
+4. Flow → Widget design → Style → Handoff contact form: ustaw kolory i włącz podgląd formularza. Save draft → Publish. Zmiany draftu nie trafiają na stronę bez publikacji.
+5. Wyszukiwanie internetu jest opcjonalne. Najpierw włącz własny klucz OpenAI BYOK i kompatybilny model w Billing, następnie zaznacz Search the web w możliwościach bota. Flow Assistant ma własny przełącznik wyszukiwania. Dostawca pobiera koszt swoim kluczem; opłata AI SYNVIO/CORE wynosi 0. Bez OpenAI BYOK funkcja zwróci czytelny błąd, bez przełączenia na płatne AI.
+6. Kontekst strony: oznacz publiczny fragment strony data-synvio-knowledge. Prywatne fragmenty oznacz data-synvio-private. Bot może dostawać tekst lub oczyszczony HTML wyłącznie z oznaczonych fragmentów. Flow Assistant przyjmuje fragment kodu w polu Attach source. To nie jest dostęp do prywatnego kodu serwera ani całej dowolnej strony.
+7. Przetestuj po wdrożeniu: rozmowa po angielsku; handoff OFF z adresem kontaktowym; handoff ON i kontakt; przejęcie rozmowy w Workspace, draft i wysyłka; End chat od klienta → Resolved. Krzyżyk tylko ukrywa widget. W polu fallback email bota ustaw support@synviocore.xyz.
+
+Portfel: 1 kredyt = $1 wartości usług z cennika, nie gotówka do wypłaty. Bonus pokrywa wszystkie opłaty platformy: AI, email, chat i handoff; przy BYOK nadal pokrywa kanały. Nie opłaca zewnętrznego dostawcy BYOK ani zakupu abonamentu. Zakup abonamentu pozostaje osobną płatnością.
+Płynny bonus: t = clamp((wpłata USD - 2) / 23, 0, 1); stawka = 0.6*t*t*(3-2*t). Minimum $2, maksymalna stawka 60% od $25. $25 daje 40 kredytów, $50 daje 80. Każda wpłata liczona osobno. Poprzednie wpłaty nie są przeliczane, istniejący bonus od V27 może pokrywać także kanały. Techniczna nazwa kolumny ai_bonus_micro_usd zostaje dla zgodności danych.
+Abonament: $25 za agenta daje 60 jednostek wartości usług na 30 dni. Płatności nadal w trybie testowym zarządzanym przez właściciela; ta paczka nie dodaje Stripe checkout.
+
+Sprawdzone lokalnie: migracja dwukrotnie, naliczanie bonusu, opłaty kanałów z bonusu przy BYOK, idempotencja, uprawnienia, zakończenie rozmowy, draft bez wysyłki, wyszukiwanie wyłącznie OpenAI BYOK, UI i kalkulator. Dostawcy AI byli symulowani. Paczki nie zostały wdrożone na produkcję; wykonaj powyższy test po wdrożeniu.
