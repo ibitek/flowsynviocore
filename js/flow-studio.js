@@ -15,8 +15,8 @@
   $('#test-dialog').dataset.channel=instagram?'instagram':'web';
 const connectIntro=$('[data-panel="connect"] .intro');const publishIntro=$('[data-panel="publish"] .intro');
   channelNotice('channel-summary',connectIntro,instagram?'Instagram DM is this assistant’s channel. Connect the account securely through SYNVIO/APP; Meta credentials are never stored in FLOW.':'Website chat is this assistant’s channel. Connect Workspace only when you want people to take over conversations.');
-  let instagramControl=$('#instagram-connection');if(instagram&&!instagramControl){instagramControl=document.createElement('div');instagramControl.id='instagram-connection';instagramControl.className='instagram-connection';instagramControl.innerHTML='<div><h3>Instagram Direct Messages</h3><p id="instagram-account-status">Checking connection…</p></div><button type="button" id="connect-instagram" class="primary">Connect Instagram</button>';$('[data-panel="connect"] .card').before(instagramControl);$('#connect-instagram').onclick=()=>buttonAction($('#connect-instagram'),'Opening secure connection…','Connected',startInstagramConnect);}
-  if(instagramControl){instagramControl.hidden=!instagram;if(instagram)void loadInstagramStatus();}
+  let instagramControl=$('#instagram-connection');if(instagram&&!instagramControl){instagramControl=document.createElement('div');instagramControl.id='instagram-connection';instagramControl.className='instagram-connection';instagramControl.innerHTML='<div><h3>Instagram Direct Messages</h3><p id="instagram-account-status">Checking connection…</p></div><div class="row"><button type="button" id="connect-instagram" class="primary">Connect Instagram</button><button type="button" id="disconnect-instagram" hidden>Disconnect Instagram</button><button type="button" id="refresh-instagram">Refresh status</button></div>';$('[data-panel="connect"] .card').before(instagramControl);$('#connect-instagram').onclick=()=>buttonAction($('#connect-instagram'),'Opening secure connection…','Connected',startInstagramConnect);$('#disconnect-instagram').onclick=disconnectInstagram;$('#refresh-instagram').onclick=()=>buttonAction($('#refresh-instagram'),'Checking…','Updated',loadInstagramStatus);}
+  if(instagramControl){instagramControl.hidden=!instagram;if(instagram)void loadInstagramStatus().catch(()=>{});}
   const origin=$('[data-config="origins"]'),embed=$('#embed'),copy=$('#copy-embed');
   origin.closest('label').hidden=instagram;embed.closest('label').hidden=instagram;copy.hidden=instagram;
   const embedHint=copy.nextElementSibling;if(embedHint?.tagName==='P')embedHint.hidden=instagram;
@@ -26,7 +26,27 @@ const connectIntro=$('[data-panel="connect"] .intro');const publishIntro=$('[dat
  }
  async function instagramRequest(path,options={}){const {data}=await sb.auth.getSession();if(!data.session)throw Error('Sign in first.');let response;try{response=await fetch('https://app.synviocore.xyz/api/integrations/instagram/'+path,{...options,headers:{authorization:'Bearer '+data.session.access_token,...(options.headers||{})}});}catch{throw Error('Could not reach SYNVIO/APP. Check the central integration deployment.');}const result=await response.json().catch(()=>({}));if(!response.ok)throw Error(result.error||'Instagram connection is unavailable.');return result;}
  async function startInstagramConnect(){const result=await instagramRequest('connect?botId='+encodeURIComponent(bot.id)+'&format=json');if(typeof result.authorizeUrl!=='string')throw Error('Could not start the Instagram connection.');location.assign(result.authorizeUrl);}
- async function loadInstagramStatus(){const requestedBot=bot?.id,status=$('#instagram-account-status'),button=$('#connect-instagram');if(!requestedBot||!status||!button)return;try{const result=await instagramRequest('status?botId='+encodeURIComponent(requestedBot));if(bot?.id!==requestedBot)return;const connection=(result.connections||[]).find(item=>item.status==='active');if(connection){status.textContent='Connected'+(connection.instagram_username?' as @'+connection.instagram_username:'')+'. Meta credentials are stored securely in SYNVIO/APP.';button.textContent='Reconnect Instagram';}else{status.textContent='No Instagram account connected yet. Meta credentials are never stored in FLOW.';button.textContent='Connect Instagram';}}catch{if(bot?.id===requestedBot)status.textContent='Connection status is unavailable. You can still reconnect Instagram.';}}
+ let instagramConnections=[],instagramStatusRequest=0;
+ async function loadInstagramStatus(){
+  const requestedBot=bot?.id,requestId=++instagramStatusRequest,status=$('#instagram-account-status'),button=$('#connect-instagram'),disconnect=$('#disconnect-instagram');
+  instagramConnections=[];if(disconnect)disconnect.hidden=true;if(!requestedBot||!status||!button)return;
+  status.textContent='Checking Instagram connection…';
+  try{const result=await instagramRequest('status?botId='+encodeURIComponent(requestedBot));if(bot?.id!==requestedBot||requestId!==instagramStatusRequest)return;
+   instagramConnections=(result.connections||[]).filter(item=>item.status==='active'&&!item.disconnected_at&&item.id);
+   const connection=instagramConnections[0];
+   if(connection){const expired=connection.token_expires_at&&Date.parse(connection.token_expires_at)<=Date.now();status.textContent=(expired?'Authorization expired':'Connected')+(connection.instagram_username?' as @'+connection.instagram_username:'')+'. '+(expired?'Reconnect Instagram to receive and send messages.':(bot.published?'Published settings are live.':'Publish this assistant to enable replies.')+' '+(bot.connected?'Workspace is connected.':'Connect Workspace below to enable team handoff.'));button.textContent='Reconnect Instagram';disconnect.hidden=false;}
+   else{status.textContent='No Instagram account connected. Connect an account, then publish the assistant.';button.textContent='Connect Instagram';}
+  }catch(error){if(bot?.id===requestedBot&&requestId===instagramStatusRequest)status.textContent=error.message+' Use Refresh status to try again.';throw error;}
+ }
+ async function disconnectInstagram(){
+  const requestedBot=bot?.id,connections=[...instagramConnections],button=$('#disconnect-instagram');
+  if(!requestedBot||!connections.length||button.disabled)return;
+  if(!confirm('Disconnect Instagram from this assistant? New Instagram messages will stop routing to it. Existing conversations are kept.'))return;
+  button.disabled=true;notice('');
+  try{for(const connection of connections)await instagramRequest('disconnect',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({connectionId:connection.id,botId:requestedBot})});
+   if(bot?.id===requestedBot){await loadInstagramStatus();notice('Instagram disconnected. Existing conversations have been kept.');}
+  }catch(error){notice(error.message);}finally{button.disabled=false;}
+ }
  let bots=[],bot=null,c={},widget=null,testWidget=null,dirty=false;
  let designDevice='desktop',previewWidth=1440,previewHeight=900;
  const layoutKeys=['format','width','height','fontSize','wx','wy','lx','ly','margin'];
