@@ -1,0 +1,12 @@
+@font-face{font-family:SynvioWordmark;src:url('./synvio-wordmark.ttf') format('truetype');font-weight:900;font-style:normal;font-display:swap}
+.synvio-brand{display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;flex:0 0 auto;max-width:100%;margin:0;padding:0;text-decoration:none!important;white-space:nowrap;line-height:1!important;color:#f5f7fb!important;transform:none!important}
+.synvio-brand .synvio-logo-mark{display:block!important;flex:0 0 27px!important;width:27px!important;height:27px!important;overflow:visible;transition:transform .65s cubic-bezier(.2,.7,.25,1),filter .3s}
+.synvio-logo-mark rect{fill:#171e29;stroke:#bfd0ff;stroke-width:2}.synvio-logo-mark circle{fill:#4ad9df;stroke:none;filter:drop-shadow(0 0 5px #4ad9df75)}
+.synvio-brand .synvio-wordmark{font-family:SynvioWordmark,Inter,Arial,sans-serif!important;font-size:14px!important;font-weight:900!important;line-height:1!important;letter-spacing:.12em!important;color:inherit!important;text-transform:uppercase;display:block}
+.synvio-brand .synvio-slash{font-family:Arial,sans-serif!important;font-weight:400!important;color:#72809b!important;letter-spacing:0!important}
+:root[data-theme=light] .synvio-brand{color:#202a35!important}:root[data-theme=light] .synvio-logo-mark rect{fill:#f4f7fa;stroke:#8298b2}
+@media(hover:hover){.synvio-brand:hover .synvio-logo-mark{transform:rotate(90deg) scale(1.08);filter:drop-shadow(0 0 7px #4ad9df40)}}
+@media(max-width:560px){#editor>.sidebar .synvio-brand{justify-content:center!important}#editor>.sidebar .synvio-wordmark{display:none!important}}
+@media(prefers-reduced-motion:reduce){.synvio-brand .synvio-logo-mark{transition:none!important;transform:none!important}}
+
+.synvio-brand-row{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0}.synvio-brand-row>.theme-toggle{flex-shrink:0;margin-left:auto}
