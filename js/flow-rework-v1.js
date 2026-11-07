@@ -61,6 +61,13 @@
       }
     };
   }
+  if(window.SynvioInstagramPreview)window.SynvioMessengerPreview=class extends window.SynvioInstagramPreview{
+    render(){super.render();this.host.classList.add('messenger-preview');
+      const subtitle=this.root.querySelector('.head small');if(subtitle)subtitle.textContent='Messenger · preview';
+      const symbol=this.root.querySelector('.head>span');if(symbol)symbol.textContent='↯';
+      const style=document.createElement('style');style.textContent='.head>span{background:linear-gradient(40deg,#0866ff,#a52df9)!important}.bubble.user{background:#0866ff!important}.send{color:#70a8ff!important}';this.root.append(style);
+    }
+  };
   const icon='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>';
   document.querySelectorAll('.sidebar-bottom a').forEach(a=>{const label=a.textContent.replace(/^[^A-Za-z]+/,'').replace(/\s*↗$/,'');a.replaceChildren();a.insertAdjacentHTML('afterbegin',icon);a.append(el('span','',label));});
 })();
