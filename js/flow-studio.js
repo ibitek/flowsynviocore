@@ -26,10 +26,10 @@ const connectIntro=$('[data-panel="connect"] .intro');const publishIntro=$('[dat
   setButtonIcon('test','play','Test conversation');
  }
 
- let messengerConnections=[],messengerStatusRequest=0;
+ let messengerConnections=[],messengerStatusRequest=0,messengerAttempt=null;
  async function messengerRequest(path,body){
   const {data}=await sb.auth.getSession();if(!data.session)throw Error('Sign in first.');
-  const response=await fetch('https://app.synviocore.xyz/api/integrations/messenger/'+path,{method:body?'POST':'GET',headers:{authorization:'Bearer '+data.session.access_token,...(body?{'content-type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
+  const response=await fetch('https://app.synviocore.xyz/api/integrations/messenger/'+path,{method:body?'POST':'GET',credentials:path==='oauth-start'?'include':'omit',headers:{authorization:'Bearer '+data.session.access_token,...(body?{'content-type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
   const result=await response.json();if(!response.ok)throw Error(result.error||'Messenger is unavailable.');return result;
  }
  async function loadMessengerStatus(){
@@ -46,8 +46,20 @@ const connectIntro=$('[data-panel="connect"] .intro');const publishIntro=$('[dat
   let panel=$('#messenger-connection');
   if(!panel&&show){
    panel=document.createElement('section');panel.id='messenger-connection';panel.className='card messenger-connection';
-   panel.innerHTML='<h3>Facebook Messenger</h3><p id="messenger-status" role="status"></p><p class="muted">Administrator setup for your test Page. Use a Page access token from the same Meta app as the webhook. The token is encrypted on the server and is never returned to this page.</p><label>Facebook Page ID<input id="messenger-page-id" inputmode="numeric" autocomplete="off" placeholder="Your numeric Page ID"></label><label>Page access token<input id="messenger-token" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste the Page token here"></label><div class="row"><button type="button" class="primary" id="connect-messenger">Connect Page</button><button type="button" id="refresh-messenger">Refresh status</button><button type="button" id="disconnect-messenger" hidden>Disconnect</button></div><p class="muted">In Meta, verify the webhook and subscribe this Page to messages. Standard replies are available for 24 hours after a customer message. This version supports text replies; attachments need a text description or review in the Page inbox.</p>';
+   panel.innerHTML='<h3>Facebook Messenger</h3><p id="messenger-status" role="status"></p><p class="muted">Sign in with Facebook, allow access to your Page, then choose it here. We securely manage the connection and message subscription for you.</p><div class="row"><button type="button" class="primary" id="authorize-messenger">Connect with Facebook</button><button type="button" id="refresh-messenger">Refresh status</button><button type="button" id="disconnect-messenger" hidden>Disconnect</button></div><section id="messenger-page-picker" hidden><h4>Choose your Facebook Page</h4><p class="muted">Only Pages shared during authorization are listed. This assistant connects to one Page.</p><label>Facebook Page<select id="messenger-page-choice"></select></label><button type="button" class="primary" id="finish-messenger">Connect selected Page</button><p id="messenger-oauth-status" role="status" aria-live="polite"></p></section><details><summary>Advanced · manual token setup</summary><p class="muted">For administrator troubleshooting. Normal setup uses Connect with Facebook above.</p><label>Facebook Page ID<input id="messenger-page-id" inputmode="numeric" autocomplete="off" placeholder="Your numeric Page ID"></label><label>Page access token<input id="messenger-token" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste the Page token here"></label><button type="button" id="connect-messenger">Connect Page manually</button></details><p class="muted">After connecting, publish this assistant and send a test message to your Page. Standard replies are available for 24 hours after a customer message.</p>';
    $('[data-panel="connect"] .card').before(panel);
+   $('#authorize-messenger').onclick=()=>buttonAction($('#authorize-messenger'),'Opening Facebook…','Continue in Facebook',async()=>{
+    const id=bot.id;if(dirty)await save();const result=await messengerRequest('oauth-start',{botId:id});
+    const target=new URL(result.authorizeUrl);if(target.origin!=='https://www.facebook.com')throw Error('Facebook authorization is unavailable.');
+    location.assign(target.href);
+   });
+   $('#finish-messenger').onclick=()=>buttonAction($('#finish-messenger'),'Connecting…','Connected',async()=>{
+    const pending=messengerAttempt;if(!pending||pending.botId!==bot.id)throw Error('Start Connect with Facebook again.');
+    const status=$('#messenger-oauth-status');status.textContent='Connecting your Page and enabling messages…';
+    try{await messengerRequest('oauth-finish',{attemptId:pending.id,pageId:$('#messenger-page-choice').value});
+     if(bot.id===pending.botId){messengerAttempt=null;$('#messenger-page-picker').hidden=true;clearMessengerReturn();await loadMessengerStatus();notice('Facebook Page connected. Publish your assistant, then send a test message.');}
+    }catch(e){status.textContent=e.message;throw e;}
+   });
    $('#connect-messenger').onclick=()=>buttonAction($('#connect-messenger'),'Connecting…','Connected',async()=>{
     const requested=bot.id,pageId=$('#messenger-page-id').value.trim(),pageToken=$('#messenger-token').value.trim();
     try{if(dirty)await save();await messengerRequest('connect',{botId:requested,pageId,pageToken});if(bot.id===requested)await loadMessengerStatus();}finally{$('#messenger-token').value='';}
@@ -55,7 +67,23 @@ const connectIntro=$('[data-panel="connect"] .intro');const publishIntro=$('[dat
    $('#refresh-messenger').onclick=()=>buttonAction($('#refresh-messenger'),'Checking…','Updated',loadMessengerStatus);
    $('#disconnect-messenger').onclick=()=>buttonAction($('#disconnect-messenger'),'Disconnecting…','Disconnected',async()=>{const id=bot.id;for(const connection of messengerConnections)await messengerRequest('disconnect',{botId:id,connectionId:connection.id});if(bot.id===id)await loadMessengerStatus();});
   }
-  if(panel){panel.hidden=!show;$('#messenger-token').value='';$('#messenger-page-id').value='';if(show)void loadMessengerStatus().catch(()=>{});}
+  if(panel){panel.hidden=!show;$('#messenger-token').value='';$('#messenger-page-id').value='';$('#messenger-page-picker').hidden=!show||messengerAttempt?.botId!==bot?.id;if(show)void loadMessengerStatus().catch(()=>{});}
+ }
+ function clearMessengerReturn(){const url=new URL(location.href);for(const k of ['messenger','attempt'])url.searchParams.delete(k);history.replaceState(null,'',url.href);}
+ async function resumeMessengerOAuth(params){
+  if(!params.has('messenger'))return;
+  if(params.get('messenger')==='cancelled'){clearMessengerReturn();notice('Facebook authorization was cancelled. Your existing connection was not changed.');return;}
+  if(!bot||bot.draft.channel!=='messenger')return;
+  $('#nav [data-page="connect"]').click();
+  if(!params.get('attempt')){clearMessengerReturn();throw Error('The Facebook authorization link expired or was already used. Start Connect with Facebook again.');}
+  const result=await messengerRequest('oauth-pages?attemptId='+encodeURIComponent(params.get('attempt')));
+  if(result.botId!==bot.id)throw Error('This connection belongs to another assistant. Open its Connections page.');
+  if(result.status==='complete'){clearMessengerReturn();await loadMessengerStatus();return;}
+  if(result.status!=='ready'){clearMessengerReturn();throw Error(result.error||'Facebook connection is not ready. Start Connect with Facebook again.');}
+  messengerAttempt={id:params.get('attempt'),botId:bot.id};
+  $('#messenger-page-choice').replaceChildren(...result.pages.map(p=>new Option(p.name+' · '+p.id,p.id)));
+  $('#messenger-page-picker').hidden=false;$('#messenger-oauth-status').textContent='Facebook authorization completed. Choose a Page to finish connecting.';
+  $('#messenger-page-choice').focus();
  }
 
  async function instagramRequest(path,options={}){const {data}=await sb.auth.getSession();if(!data.session)throw Error('Sign in first.');let response;try{response=await fetch('https://app.synviocore.xyz/api/integrations/instagram/'+path,{...options,headers:{authorization:'Bearer '+data.session.access_token,...(options.headers||{})}});}catch{throw Error('Could not reach SYNVIO/APP. Check the central integration deployment.');}const result=await response.json().catch(()=>({}));if(!response.ok)throw Error(result.error||'Instagram connection is unavailable.');return result;}
@@ -189,7 +217,7 @@ const connectIntro=$('[data-panel="connect"] .intro');const publishIntro=$('[dat
  $('#help-form').onsubmit=e=>{e.preventDefault();guarded(async()=>{const button=$('#help-form button');if(button.disabled)return;button.disabled=true;button.textContent='Thinking…';try{if(!helpRequest){const text=$('#help-text').value.trim();if(!text)return;helpRequest={text,botId:bot.id,revision:bot.revision,edit:$('#help-mode').value==='edit',currentDraft:structuredClone(c),webSearch:$('#help-web').checked,sourceSnippet:$('#help-source').value,panel:all('[data-panel]').find(p=>!p.hidden)?.dataset.panel,history:helpHistory.slice(-6),requestId:crypto.randomUUID()};helpLine('user',text);}if(!helpRequest.edit&&/(embed|javascript|java script|kod.*(agenta|bota)|script.*code)/i.test(helpRequest.text)){helpLine('assistant',['instagram','messenger'].includes(c.channel)?'This assistant runs in '+c.channel+'. There is no website embed code. Connect the channel in Connections, then publish its settings. For a website widget, create a Website chat assistant.':'Publish this website assistant first, then paste this code into your website:\n\n```html\n'+$('#embed').value+'\n```');helpRequest=null;$('#help-text').value='';return;}const request=helpRequest;const r=await action(request.edit?'assistant_edit':'assistant',request);if(request.botId===bot.id){if(r.proposal)await reviewProposal(r.proposal,request);else helpLine('assistant',r.reply);helpHistory.push({role:'user',content:request.text},{role:'assistant',content:r.reply||r.proposal.summary});}helpRequest=null;$('#help-text').value='';}catch(e){helpLine('assistant',e.message);if(!['NETWORK','REQUEST_PENDING','RECONCILIATION_REQUIRED'].includes(e.code))helpRequest=null;}finally{button.disabled=false;button.textContent=helpRequest?'Retry reply':'Send';}});};
  $('#logout').onclick=async()=>{await sb.auth.signOut();location.href='/login.html?next=/';};
  window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
- guarded(async()=>{if(!sb)throw Error('Authentication is not configured.');const params=new URLSearchParams(location.search);await load(params.get('bot'));if(params.get('instagram')==='connected')notice('Instagram account connected securely. Next, send a test DM to verify webhook routing.');else if(params.get('instagram')==='cancelled')notice('Instagram connection was cancelled. No account was connected.');});
+ guarded(async()=>{if(!sb)throw Error('Authentication is not configured.');const params=new URLSearchParams(location.search);await load(params.get('bot'));await resumeMessengerOAuth(params);if(params.get('instagram')==='connected')notice('Instagram account connected securely. Next, send a test DM to verify webhook routing.');else if(params.get('instagram')==='cancelled')notice('Instagram connection was cancelled. No account was connected.');});
 })();
 
 // Load the optional Commerce panel after FLOW has mounted its connect view.
