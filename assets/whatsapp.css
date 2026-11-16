@@ -1,0 +1,10 @@
+.wa-connection{display:block;margin-bottom:24px;background:var(--paper);color:var(--ink)}
+.wa-connection h3{margin:0 0 12px;font-size:20px}.wa-connection p{max-width:76ch;line-height:1.6;color:var(--muted)}
+.wa-connection [role=status]{font-weight:650;color:var(--ink)}
+.wa-connection .wa-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+.wa-connection details{margin:20px 0;padding:16px;background:var(--field);border:1px solid var(--line);border-radius:12px}
+.wa-connection summary{cursor:pointer;font-weight:600}.wa-connection label{display:grid;gap:7px;margin:14px 0}.wa-connection input{width:100%;min-width:0}
+.wa-connection .wa-warning{padding:12px 16px;border-left:3px solid #e6a04b;background:var(--field);color:var(--ink)}
+.wa-connection[data-state=expired]{border-color:#c5893e}.wa-connection .wa-caption{font-size:12px}
+.channel-picker{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.channel-badge.whatsapp{background:#25d36618;color:var(--ink)}
+@media(max-width:600px){.wa-connection .wa-actions{display:grid}.wa-connection button{width:100%;white-space:normal}}
